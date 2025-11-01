@@ -33,6 +33,10 @@ services:
       - LISTEN_ADDR=0.0.0.0
     depends_on:
       - ollama
+    volumes:
+      - open-webui-data:/app/backend/data
+      - ./rag-documents:/app/backend/data/docs/external_bind_mounts:ro
 
 volumes:
   ollama_models: # Define the persistent volume
+  open-webui-data: # Definējiet Open WebUI persistent volume

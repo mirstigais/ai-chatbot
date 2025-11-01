@@ -1,13 +1,17 @@
 #!/bin/bash
 
-# Start the Ollama service in the background
+# 1. Start Ollama serve in the background (as before)
 /bin/ollama serve &
+OLLAMA_PID=$! # Store the process ID
 
-# Wait a moment for the server to start
-sleep 5
+# 2. Wait until Ollama API is available
+echo "Waiting for Ollama API to be reachable using 'ollama --version'..."
+until /bin/ollama --version >/dev/null 2>&1; do
+  sleep 1
+done
+echo "Ollama service started and API is reachable."
 
-# Check if the model is already downloaded using `ollama list`
-# If mistral:7b is not in the list, then pull it.
+# 3. Pull the main LLM (optional check, as create might pull it anyway)
 if ! ollama list | grep -q "mistral:7b"; then
   echo "Mistral 7B not found. Pulling model..."
   ollama pull mistral:7b
@@ -15,9 +19,24 @@ else
   echo "Mistral 7B already found in volume. Skipping pull."
 fi
 
-# The main Ollama process is still running in the background.
-# This prevents the container from exiting.
-
-# Do the magic with the modelfile
+# 4. Create the custom model
+echo "Creating ai-comply-chatbot model..."
 /bin/ollama create ai-comply-chatbot -f /tmp/ai-comply-modelfile
-wait $!
+
+# 5. Pull the Embedding model for RAG
+EMBED_MODEL="nomic-embed-text"
+if ! /bin/ollama list | grep -q "$EMBED_MODEL"; then
+  echo "Embedding model ($EMBED_MODEL) not found. Pulling..."
+  /bin/ollama pull $EMBED_MODEL
+else
+  echo "Embedding model ($EMBED_MODEL) already found. Skipping pull."
+fi
+
+# 6. Kill the background server process
+echo "Setup complete. Stopping background server."
+kill $OLLAMA_PID
+
+# 7. Start the main Ollama serve process (This becomes the container's primary process)
+# Use 'exec' so that this is the final process and the container stays running.
+echo "Starting final Ollama server process..."
+exec /bin/ollama serve
