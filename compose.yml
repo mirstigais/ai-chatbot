@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   ollama:
     image: ollama/ollama
@@ -30,12 +32,32 @@ services:
     environment:
       - OLLAMA_BASE_URL=${OLLAMA_HOST}
       - LISTEN_ADDR=0.0.0.0
+      - ENABLE_RAG=true
+      - ENABLE_WEB_SEARCH=true
+      - RAG_WEB_SEARCH_ENGINE=searxng
+      - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>
+      - ENABLE_AGENT_MODE=true
+      - AGENT_TOOLS=web_search,rag
     depends_on:
       - ollama
+      - searxng
     volumes:
       - open-webui-data:/app/backend/data
       - ./rag-documents:/app/backend/data/docs/external_bind_mounts:ro
       - ./openwebui-entrypoint.sh:/usr/local/bin/openwebui-entrypoint.sh
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - BASE_URL=http://localhost:8080/
+      - INSTANCE_NAME=Local SearxNG
+      - SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
+    volumes:
+      - ./searxng:/etc/searxng
 
 volumes:
   ollama_models:
