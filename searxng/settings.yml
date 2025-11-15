@@ -1,0 +1,101 @@
+# ===========================================
+# SearxNG configuration for Open WebUI
+# ===========================================
+
+use_default_settings: true
+
+server:
+  port: 8080
+  bind_address: 0.0.0.0
+  secret_key: "change-this-secret-key"
+  limiter: true
+  image_proxy: true
+  base_url: http://localhost:8080/
+
+ui:
+  static_use_hash: true
+  results_on_new_tab: false
+  theme_args:
+    simple_style: auto
+    center_alignment: true
+    footer_links: false
+
+search:
+  safe_search: 0
+  autocomplete: "duckduckgo"
+  default_lang: "en"
+  default_locale: "en"
+  formats:
+    - html
+    - json
+  default_categories:
+    - general
+    - news
+    - it
+    - science
+
+outgoing:
+  request_timeout: 5.0
+  max_request_timeout: 10.0
+  pool_connections: 50
+  pool_maxsize: 50
+  verify: true
+  proxies: {}
+  useragent_suffix: "open-webui-searxng"
+  useragent: "Mozilla/5.0 (compatible; SearxNG/1.0; +https://searxng.org)"
+
+engines:
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+
+  - name: brave
+    engine: brave
+    shortcut: br
+    disabled: false
+
+  - name: mojeek
+    engine: mojeek
+    shortcut: mj
+    disabled: false
+
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    base_url: "https://en.wikipedia.org/"
+    categories: general
+
+  - name: bing
+    engine: bing
+    shortcut: bing
+    disabled: true
+
+  - name: google
+    engine: google
+    shortcut: g
+    disabled: true
+
+  - name: qwant
+    engine: qwant
+    shortcut: qw
+    disabled: false
+
+  - name: reddit
+    engine: reddit
+    shortcut: rdd
+    disabled: false
+
+  - name: stackoverflow
+    engine: stackoverflow
+    shortcut: so
+    disabled: false
+
+redis:
+  url: false
+
+result_proxy:
+  url: /image_proxy
+  key: ""
+
+metrics:
+  enabled: false
